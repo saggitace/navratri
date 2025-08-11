@@ -41,7 +41,7 @@ const slides = [
       "3-Night Celebration of Culture, Dance & Music",
       "Open to Families, Students, Professionals & Creators",
       "Live Garba & Dandiya with Themed Décor",
-      "Celebrity DJ Performance on Day 2",
+      "Celebrity DJ Performance ",
       "Influencer Appearances & Reels Coverage",
     ],
   },
