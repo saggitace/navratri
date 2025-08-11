@@ -22,15 +22,15 @@ import {
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import Image from "next/image"
-
+import milaanLogo from "../public/milaan-logo.jpg"
 const slides = [
   {
     id: 1,
     type: "cover",
     title: "Raas Ki Raat Sab Ke Saath",
     subtitle: "Dandiya Night 2025 – Patna",
-    date: "September 27, 28, 29",
-    venue: "Venue: To Be Decided",
+    date: "September  28",
+    venue: "Venue: Bankipur Club Patna",
     organizer: "Organized by: Milaan Services",
   },
   {
@@ -50,9 +50,9 @@ const slides = [
     type: "schedule",
     title: "Event Schedule",
     schedule: [
-      { date: "Sept 27", time: "6 PM–11 PM", highlight: "Inauguration + Traditional Garba" },
+      // { date: "Sept 27", time: "6 PM–11 PM", highlight: "Inauguration + Traditional Garba" },
       { date: "Sept 28", time: "6 PM–11 PM", highlight: "Dandiya + Celebrity DJ Night" },
-      { date: "Sept 29", time: "6 PM–11 PM", highlight: "Competitions + Influencer Show + Prize Distribution" },
+      // { date: "Sept 29", time: "6 PM–11 PM", highlight: "Competitions + Influencer Show + Prize Distribution" },
     ],
   },
   {
@@ -144,7 +144,7 @@ const slides = [
     type: "contact",
     title: "Contact & Bookings",
     contact: {
-      phone: [{name: "Ankit", number: "+91 7370038276"}, {name: "Sanjeev", number: "+91 7488479814"}, {name: "Abhishek", number: "+91 9455477609"}],
+      phone: [{name: "Ankit", number: "+91 7370038276"}, {name: "Sanjeev", number: "+91 7488479814"}, {name: "Abhishek", number: "+91 9355477609"}],
       email: "servicesmilaan@gmail.com",
       location: "Patna, Bihar",
     },
@@ -233,6 +233,31 @@ export default function DandiyaPresentation() {
           />
         </div>
 
+         {/* Milaan Services Logo */}
+<motion.div
+  className="fixed bottom-4 right-4 z-50 mb-20 sm:mb-24" // space above bottom for both mobile & large
+  animate={{
+    scale: [1, 1.1, 1],
+  }}
+  transition={{
+    duration: 1.5,
+    repeat: Infinity,
+    ease: "easeInOut",
+  }}
+>
+  <div className="bg-gradient-to-br from-yellow-50/40 via-white/30 to-yellow-100/20 backdrop-blur-md rounded-2xl p-2 sm:p-3 border border-yellow-400/50 shadow-xl">
+    <Image
+      src={milaanLogo}
+      alt="Milaan Logo"
+      width={60} // default for mobile
+      height={45}
+      className="rounded-lg shadow-lg sm:w-[90px] sm:h-[75px]" // larger on sm+
+      priority
+    />
+  </div>
+</motion.div>
+
+
         {/* Dancing Couple Background - Left Side */}
         <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1/3 h-2/3 opacity-20">
           <Image
@@ -270,6 +295,8 @@ export default function DandiyaPresentation() {
             className="object-contain transform scale-x-[-1]"
           />
         </div>
+
+        
 
         {/* Dark overlay for better text readability */}
         <div className="absolute inset-0 bg-black/50"></div>
@@ -477,7 +504,7 @@ export default function DandiyaPresentation() {
       </div>
 
       {/* Swipe Instruction for Mobile - Positioned to not interfere with buttons */}
-      <div className="sm:hidden fixed top-1/2 left-4 right-4 transform -translate-y-1/2 pointer-events-none z-20">
+      {/* <div className="sm:hidden fixed top-1/2 left-4 right-4 transform -translate-y-1/2 pointer-events-none z-20">
         <motion.div
           className="text-center text-white/70 text-sm bg-black/20 backdrop-blur-sm rounded-full px-4 py-2 mx-auto max-w-xs"
           animate={{ opacity: [0.5, 1, 0.5] }}
@@ -485,7 +512,7 @@ export default function DandiyaPresentation() {
         >
           👈 Swipe left or right to navigate 👉
         </motion.div>
-      </div>
+      </div> */}
     </div>
   )
 }
@@ -997,24 +1024,7 @@ export const ContactSlide = ({ slide }: { slide: any }) => {
   return (
     <Card className="bg-black/50 backdrop-blur-lg border-yellow-400/30 text-white shadow-2xl">
       <CardContent className="p-4 sm:p-6 lg:p-8">
-        {/* Milaan Services Logo */}
-        {/* <motion.div
-          className="flex  justify-end mb-6 lg:mb-8"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1 }}
-        >
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-yellow-400/30">
-            <Image
-  src="https://drive.google.com/uc?export=view&id=1dHSsZ_1NX8F2ZzUzklljEGUGx1ADkS0X"
-  alt="Milaan Services Logo"
-  width={200}
-  height={120}
-  className="rounded-xl shadow-lg"
-  priority
-/>
-          </div>
-        </motion.div> */}
+       
 
         <motion.div
           className="text-center mb-6 lg:mb-8"
@@ -1076,20 +1086,7 @@ export const ContactSlide = ({ slide }: { slide: any }) => {
           </motion.div>
 
           {/* Social Media */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.8 }}
-            className="bg-gradient-to-r from-pink-500/20 to-orange-500/20 rounded-xl p-4 sm:p-6 backdrop-blur-sm border border-yellow-400/20"
-          >
-            <div className="text-lg sm:text-xl lg:text-2xl font-semibold mb-2">🌐 Follow Us</div>
-            <div className="flex justify-center space-x-4 text-2xl">
-              <span className="hover:scale-110 transition-transform cursor-pointer">📘</span>
-              <span className="hover:scale-110 transition-transform cursor-pointer">📷</span>
-              <span className="hover:scale-110 transition-transform cursor-pointer">🐦</span>
-              <span className="hover:scale-110 transition-transform cursor-pointer">💬</span>
-            </div>
-          </motion.div>
+         
         </div>
 
         <motion.div
