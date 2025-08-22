@@ -23,14 +23,16 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import Image from "next/image"
 import milaanLogo from "../public/milaan-logo.jpg"
+import dandiyabeats from "../public/Dandiya-beats.jpg"
+import uniquegarden from "../public/Unique-garden.jpg"
 const slides = [
   {
     id: 1,
     type: "cover",
     title: "Raas Ki Raat Sab Ke Saath",
     subtitle: "Dandiya Night 2025 – Patna",
-    date: "September  28",
-    venue: "Venue: Bankipur Club Patna",
+    date: "28th September 2025 , Sunday , Shasthi | ⏰ 5:00 PM – 10:00 PM",
+    venue: "Venue: Unique Garden Banquet Hall, Near Pillar No. 1, Bailey Road, Patna",
     organizer: "Organized by: Milaan Services",
   },
   {
@@ -38,7 +40,7 @@ const slides = [
     type: "about",
     title: "About the Event",
     points: [
-      "3-Night Celebration of Culture, Dance & Music",
+      "A grand Celebration of Culture, Dance & Music",
       "Open to Families, Students, Professionals & Creators",
       "Live Garba & Dandiya with Themed Décor",
       "Celebrity DJ Performance ",
@@ -92,15 +94,73 @@ const slides = [
     ],
   },
   {
-    id: 7,
-    type: "sponsorship-packages",
-    title: "Sponsorship Packages",
-    packages: [
-      { name: "Title Sponsor", price: "₹2,00,000", level: "premium" },
-      { name: "Co-Presenting Sponsor", price: "₹1,00,000", level: "gold" },
-      { name: "Associate Sponsor", price: "₹50,000", level: "silver" },
-    ],
-  },
+  "id": 7,
+  "type": "sponsorship-packages",
+  "title": "Sponsorship Packages",
+  "packages": [
+    {
+      "name": "Title Sponsor",
+      "price": "₹2,50,000",
+      "level": "premium",
+      "benefits": {
+        "Banner Branding (5 km)": "✅",
+        "Pamphlet Circulation": "✅",
+        "Stall Branding": "✅",
+        "Individual Banners": "✅",
+        "Print Media Branding": "✅",
+        "Influencer Collaborations": "10+",
+        "Social Media Promotions": "✅",
+        "LED Billboard Ads": "✅",
+        "Logo on Screen/Tickets": "✅",
+        "Stall Access": "✅",
+        "Stage Branding": "✅",
+        "Media Coverage & PR": "✅",
+        "VIP Tickets": "20"
+      }
+    },
+    {
+      "name": "Co-Presenting Sponsor",
+      "price": "₹1,50,000",
+      "level": "gold",
+      "benefits": {
+        "Banner Branding (2 km)": "✅",
+        "Pamphlet Circulation": "✅",
+        "Stall Branding": "✅",
+        "Individual Banners": "❌",
+        "Print Media Branding": "❌",
+        "Influencer Collaborations": "10+",
+        "Social Media Promotions": "✅",
+        "LED Billboard Ads": "❌",
+        "Logo on Screen/Tickets": "✅",
+        "Stall Access": "✅",
+        "Stage Branding": "✅",
+        "Media Coverage & PR": "✅",
+        "VIP Tickets": "10"
+      }
+    },
+    {
+      "name": "Associate Sponsor",
+      "price": "₹75,000",
+      "level": "silver",
+      "benefits": {
+        "Banner Branding ": "❌",
+        "Pamphlet Circulation": "❌",
+        "Stall Branding": "❌",
+        "Individual Banners": "✅",
+        "Print Media Branding": "✅",
+        "Influencer Collaborations": "5+",
+        "Social Media Promotions": "❌",
+        "LED Billboard Ads": "✅",
+        "Logo on Screen/Tickets": "✅",
+        "Stall Access": "✅",
+        "Stage Branding": "✅",
+        "Media Coverage & PR": "❌",
+        "VIP Tickets": "5"
+      }
+    }
+  ]
+}
+,
   {
     id: 8,
     type: "sponsor",
@@ -146,7 +206,7 @@ const slides = [
     contact: {
       phone: [{name: "Ankit", number: "+91 7370038276"}, {name: "Sanjeev", number: "+91 7488479814"}, {name: "Abhishek", number: "+91 9355477609"}],
       email: "servicesmilaan@gmail.com",
-      location: "Patna, Bihar",
+      location: "Venue: Unique Garden Banquet Hall, Near Pillar No. 1, Bailey Road, Patna",
     },
   },
 ]
@@ -233,7 +293,8 @@ export default function DandiyaPresentation() {
           />
         </div>
 
-         {/* Milaan Services Logo */}
+         
+        {/* Milaan Services Logo */}
 <motion.div
   className="fixed bottom-4 right-4 z-50 mb-20 sm:mb-24" // space above bottom for both mobile & large
   animate={{
@@ -251,12 +312,15 @@ export default function DandiyaPresentation() {
       alt="Milaan Logo"
       width={60} // default for mobile
       height={45}
-      className="rounded-lg shadow-lg sm:w-[90px] sm:h-[75px]" // larger on sm+
+      className="rounded-lg shadow-lg sm:w-[100px] sm:h-[85px]" // larger on sm+
       priority
     />
   </div>
 </motion.div>
 
+  
+
+       
 
         {/* Dancing Couple Background - Left Side */}
         <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1/3 h-2/3 opacity-20">
@@ -549,21 +613,68 @@ function SlideContent({ slide }: { slide: any }) {
 function CoverSlide({ slide }: { slide: any }) {
   return (
     <div className="text-center text-white relative">
+     {/* Dandiya beats logo */}
+<motion.div
+  className="fixed left-2 sm:left-6 lg:left-8 top-1/3 -translate-y-1/3 z-50"
+  animate={{ scale: [1, 1.1, 1] }}
+  transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+>
+  <div className="bg-gradient-to-br from-yellow-50/40 via-white/30 to-yellow-100/20 
+                  backdrop-blur-md rounded-xl p-1 sm:p-2 lg:p-3 border border-yellow-400/50 shadow-xl">
+    <Image
+      src={dandiyabeats}
+      alt="Dandiya Beats"
+      width={40}
+      height={30}
+      className="rounded-lg shadow-lg w-[40px] h-[30px] sm:w-[120px] sm:h-[90px] lg:w-[200px] lg:h-[150px]"
+      priority
+    />
+  </div>
+</motion.div>
+
+{/* Unique garden logo */}
+<motion.div
+  className="fixed right-2 sm:right-6 lg:right-8 top-1/3 -translate-y-1/3 z-50"
+  animate={{ scale: [1, 1.1, 1] }}
+  transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+>
+  <div className="bg-gradient-to-br from-yellow-50/40 via-white/30 to-yellow-100/20 
+                  backdrop-blur-md rounded-xl p-1 sm:p-2 lg:p-3 border border-yellow-400/50 shadow-xl">
+    <Image
+      src={uniquegarden}
+      alt="Unique Garden"
+      width={50}
+      height={35}
+      className="rounded-lg shadow-lg w-[50px] h-[35px] sm:w-[140px] sm:h-[100px] lg:w-[220px] lg:h-[160px]"
+      priority
+    />
+  </div>
+</motion.div>
+
+
+
       <div className="relative z-10 bg-black/40 backdrop-blur-sm rounded-2xl lg:rounded-3xl p-6 sm:p-8 lg:p-12 border border-yellow-400/30 shadow-2xl">
+
+      
         <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
           <div className="flex justify-center mb-4 lg:mb-6">
-            <div className="text-4xl sm:text-6xl lg:text-8xl">🎉</div>
+            <div className="text-4xl sm:text-6xl lg:text-8xl">Dandiya Beats</div>
           </div>
-          <h1 className="text-2xl sm:text-4xl lg:text-6xl xl:text-7xl font-bold mb-4 bg-gradient-to-r from-yellow-300 via-orange-300 to-red-300 bg-clip-text text-transparent drop-shadow-2xl leading-tight">
+          <h3 className="text-xl sm:text-2xl lg:text-4xl xl:text-5xl font-bold mb-4 bg-gradient-to-r from-yellow-300 via-orange-300 to-red-300 bg-clip-text text-transparent drop-shadow-2xl leading-tight">
             {slide.title}
-          </h1>
+          </h3>
         </motion.div>
+
+        
 
         <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
           <h2 className="text-lg sm:text-2xl lg:text-3xl xl:text-4xl font-semibold mb-6 lg:mb-8 text-yellow-200 drop-shadow-lg">
             {slide.subtitle}
           </h2>
         </motion.div>
+
+         
+
 
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
@@ -889,17 +1000,32 @@ export const SponsorshipPackagesSlide = ({ slide }: { slide: any }) => {
                   pkg.level,
                 )} rounded-xl p-4 sm:p-6 backdrop-blur-sm border border-yellow-400/20 hover:scale-105 transition-transform text-center`}
               >
+                {/* Icon + Title */}
                 <div className="bg-yellow-400/20 rounded-full w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center mx-auto mb-4">
                   <IconComponent className="w-8 h-8 sm:w-10 sm:h-10 text-yellow-400" />
                 </div>
                 <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-yellow-300 mb-3">{pkg.name}</h3>
                 <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">{pkg.price}</div>
-                <div className="text-sm sm:text-base text-gray-300 capitalize">{pkg.level} Package</div>
+                <div className="text-sm sm:text-base text-gray-300 capitalize mb-4">{pkg.level} Package</div>
+
+                {/* Benefits List */}
+                <ul className="text-left space-y-2 text-sm sm:text-base">
+                  {Object.entries(pkg.benefits).map(([benefit, value]: any, i) => (
+                    <li
+                      key={i}
+                      className="flex justify-between items-center border-b border-white/10 pb-1"
+                    >
+                      <span className="text-gray-300">{benefit}</span>
+                      <span className="font-bold text-lg">{value}</span>
+                    </li>
+                  ))}
+                </ul>
               </motion.div>
             )
           })}
         </div>
 
+        {/* Bottom Animated Icons */}
         <motion.div
           className="flex justify-center mt-6 lg:mt-8 space-x-2 sm:space-x-4"
           animate={{ scale: [1, 1.1, 1] }}
@@ -913,6 +1039,7 @@ export const SponsorshipPackagesSlide = ({ slide }: { slide: any }) => {
     </Card>
   )
 }
+
 
 function SponsorSlide({ slide }: { slide: any }) {
   return (
