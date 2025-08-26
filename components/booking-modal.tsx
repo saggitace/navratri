@@ -56,6 +56,7 @@ export function BookingModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
         alert(data.error)
       }
     } catch {
+      console.log("Error creating booking");
       alert("Network error")
     }
     setIsSubmitting(false)
