@@ -58,10 +58,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   const signature = req.headers["x-razorpay-signature"] as string
-      console.log("Webhook signature:", signature);
+      // console.log("Webhook signature:", signature);
   // Get raw body for signature verification
   const rawBody = await buffer(req)
-  console.log("Raw body:", rawBody.toString());
+  // console.log("Raw body:", rawBody.toString());
   
   // Verify webhook signature using the raw body
   const expectedSignature = crypto
@@ -69,7 +69,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     .update(rawBody)   
     .digest("hex")
         
-    console.log("Expected signature:", expectedSignature);
+    // console.log("Expected signature:", expectedSignature);
   if (expectedSignature !== signature) {
     console.error("Webhook signature verification failed");
     return res.status(400).json({ error: "Invalid signature" })
