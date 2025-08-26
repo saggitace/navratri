@@ -42,7 +42,7 @@ export function BookingModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
   const handleCreateBooking = async () => {
     setIsSubmitting(true)
     try {
-      const res = await fetch("/api/create-booking", {
+      const res = await fetch("https://dandiabeats.milaanservices.com/api/create-booking", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(bookingData),
