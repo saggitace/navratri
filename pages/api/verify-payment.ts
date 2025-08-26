@@ -61,6 +61,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       console.log("Webhook signature:", signature);
   // Get raw body for signature verification
   const rawBody = await buffer(req)
+  console.log("Raw body:", rawBody.toString());
   
   // Verify webhook signature using the raw body
   const expectedSignature = crypto
