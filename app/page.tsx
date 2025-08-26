@@ -24,6 +24,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
+import { BookingModal } from "@/components/booking-modal"
 
 function ArtistVideoCarousel() {
   const [currentSlide, setCurrentSlide] = useState(0)
@@ -462,13 +463,21 @@ function CountdownTimer() {
 
 export default function NavratriWebsite() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-
+   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false)
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId)
     if (element) {
       element.scrollIntoView({ behavior: "smooth" })
     }
     setIsMenuOpen(false)
+  }
+
+  const openBookingModal = () => {
+    setIsBookingModalOpen(true)
+  }
+
+  const closeBookingModal = () => {
+    setIsBookingModalOpen(false)
   }
 
   return (
@@ -689,7 +698,7 @@ export default function NavratriWebsite() {
             </div>
 
             <Button
-              onClick={() => scrollToSection("contact")}
+             onClick={openBookingModal}
               size="lg"
               className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-4 px-8 rounded-full text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
             >
@@ -1181,6 +1190,10 @@ export default function NavratriWebsite() {
           <p className="text-gray-300">© 2025 Milaan Services. All rights reserved.</p>
         </div>
       </footer>
+
+      {/* Booking Modal */}
+      <BookingModal isOpen={isBookingModalOpen} onClose={closeBookingModal} />
     </div>
+
   )
 }
