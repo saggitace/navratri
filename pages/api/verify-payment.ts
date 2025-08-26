@@ -51,21 +51,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (req.method !== "POST") return res.status(405).end()
 
   const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
+  
   if (!secret) {
+    console.error("Webhook secret not configured on server");
     return res.status(500).json({ error: "Webhook secret not configured on server" });
   }
 
   const signature = req.headers["x-razorpay-signature"] as string
-
+      console.log("Webhook signature:", signature);
   // Get raw body for signature verification
   const rawBody = await buffer(req)
   
   // Verify webhook signature using the raw body
   const expectedSignature = crypto
     .createHmac("sha256", secret)
-    .update(rawBody.toString())
+    .update(rawBody)   
     .digest("hex")
-
+        
+    console.log("Expected signature:", expectedSignature);
   if (expectedSignature !== signature) {
     console.error("Webhook signature verification failed");
     return res.status(400).json({ error: "Invalid signature" })
