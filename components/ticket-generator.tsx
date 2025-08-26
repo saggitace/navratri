@@ -147,19 +147,6 @@ export function TicketGenerator({ bookingId, onClose }: TicketGeneratorProps) {
           <p className="text-yellow-200 mt-1">Dandiya Night 2025 - Patna</p>
         </div>
 
-        {!ticket && !loading && (
-          <div className="text-center space-y-4">
-            <p className="text-white">Generate your downloadable ticket</p>
-            <Button
-              onClick={generateTicket}
-              className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white"
-            >
-              <QrCode className="w-4 h-4 mr-2" />
-              Generate Ticket
-            </Button>
-          </div>
-        )}
-
         {loading && (
           <div className="text-center space-y-4">
             <div className="w-12 h-12 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
@@ -176,7 +163,20 @@ export function TicketGenerator({ bookingId, onClose }: TicketGeneratorProps) {
           </div>
         )}
 
-        {ticket && (
+        {!loading && !error && !ticket && (
+          <div className="text-center space-y-4">
+            <p className="text-white">Generate your downloadable ticket</p>
+            <Button
+              onClick={generateTicket}
+              className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white"
+            >
+              <QrCode className="w-4 h-4 mr-2" />
+              Generate Ticket
+            </Button>
+          </div>
+        )}
+
+        {!loading && !error && ticket && (
           <div className="space-y-6">
             {/* Ticket Preview */}
             <div className="bg-gradient-to-br from-yellow-400/10 to-orange-400/10 rounded-2xl p-6 border-2 border-yellow-400/30">
