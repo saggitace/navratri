@@ -4,7 +4,8 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 import { Download, QrCode, Calendar, MapPin, User, Phone, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import Image from "next/image"
+import NextImage from "next/image"
+
 
 interface TicketInfo {
   bookingId: string
@@ -30,19 +31,20 @@ interface TicketGeneratorProps {
 export function TicketGenerator({ bookingId, onClose }: TicketGeneratorProps) {
   const [ticket, setTicket] = useState<TicketInfo | null>(null)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
+  const [error, setError] = useState<string | null>(null)
 
   const generateTicket = async () => {
     setLoading(true)
-    setError("")
+    setError(null)
 
     try {
       const response = await fetch(`/api/generate-ticket?bookingId=${bookingId}`)
       const data = await response.json()
 
       if (data.success) {
-        console.log("Ticket generated successfully:", data.ticket);
+        console.log("Ticket generated successfully:", data.ticket)
         setTicket(data.ticket)
+        setError(null)
       } else {
         setError(data.error || "Failed to generate ticket")
       }
@@ -56,12 +58,10 @@ export function TicketGenerator({ bookingId, onClose }: TicketGeneratorProps) {
   const downloadTicket = () => {
     if (!ticket) return
 
-    // Create a canvas to draw the ticket
     const canvas = document.createElement("canvas")
     const ctx = canvas.getContext("2d")
     if (!ctx) return
 
-    // Set canvas size
     canvas.width = 800
     canvas.height = 1000
 
@@ -103,30 +103,29 @@ export function TicketGenerator({ bookingId, onClose }: TicketGeneratorProps) {
     ctx.font = "16px Arial"
     ctx.fillText(`Booking ID: ${ticket.bookingId}`, 50, 500)
 
-    // QR Code (would need to convert base64 to image)
-    ctx.fillStyle = "#ffffff"
-    ctx.fillRect(300, 550, 200, 200)
-    ctx.fillStyle = "#000000"
-    ctx.font = "14px Arial"
-    ctx.textAlign = "center"
-    ctx.fillText("QR CODE", 400, 650)
-    ctx.fillText("(Scan for verification)", 400, 670)
+    // Load QR Code image
+    const qrImg = new Image()
+    qrImg.src = ticket.qrCode // works with both base64 and URL
 
-    // Footer
-    ctx.fillStyle = "#000000"
-    ctx.fillRect(0, 850, canvas.width, 150)
-    ctx.fillStyle = "#ffffff"
-    ctx.font = "16px Arial"
-    ctx.textAlign = "center"
-    ctx.fillText("Present this ticket at the venue for entry", canvas.width / 2, 900)
-    ctx.fillText("Organized by Milaan Services", canvas.width / 2, 930)
-    ctx.fillText("Contact: +91 7370038276", canvas.width / 2, 960)
+    qrImg.onload = () => {
+      ctx.drawImage(qrImg, 300, 550, 200, 200)
 
-    // Download
-    const link = document.createElement("a")
-    link.download = `dandiya-ticket-${ticket.bookingId}.png`
-    link.href = canvas.toDataURL()
-    link.click()
+      // Footer
+      ctx.fillStyle = "#000000"
+      ctx.fillRect(0, 850, canvas.width, 150)
+      ctx.fillStyle = "#ffffff"
+      ctx.font = "16px Arial"
+      ctx.textAlign = "center"
+      ctx.fillText("Present this ticket at the venue for entry", canvas.width / 2, 900)
+      ctx.fillText("Organized by Milaan Services", canvas.width / 2, 930)
+      ctx.fillText("Contact: +91 7370038276", canvas.width / 2, 960)
+
+      // Trigger download after QR is drawn
+      const link = document.createElement("a")
+      link.download = `dandiya-ticket-${ticket.bookingId}.png`
+      link.href = canvas.toDataURL()
+      link.click()
+    }
   }
 
   return (
@@ -237,12 +236,13 @@ export function TicketGenerator({ bookingId, onClose }: TicketGeneratorProps) {
 
                   {/* QR Code */}
                   <div className="bg-white rounded-lg p-4 text-center">
-                    <Image
+                    <NextImage
                       src={ticket.qrCode || "/placeholder.svg"}
                       alt="Ticket QR Code"
                       width={150}
                       height={150}
                       className="mx-auto"
+                      unoptimized // needed for base64 src
                     />
                     <p className="text-black text-xs mt-2">Scan for verification</p>
                   </div>
