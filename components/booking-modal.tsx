@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { X, User, Mail, Phone, MapPin, Calendar, Users, Check } from "lucide-react"
+import { X, User, Mail, Phone, MapPin, Calendar, Users, Check, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export function BookingModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
@@ -24,7 +24,7 @@ export function BookingModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
     { id: "Female", name: "Female Entry", price: 1, description: "For individual female guests." },
     { id: "Male", name: "Male Entry", price: 499, description: "For individual male guests." },
     { id: "Couple", name: "Couple Entry", price: 799, description: "For one male and one female." },
-    { id: "Family", name: "Family Package", price: 1299, description: "For families (up to 4 members including 1 children less than 10 years of Age)." },
+    { id: "Family", name: "Family Package", price: 1299, description: "For families (up to 4 members  additional 1 child upto 10 years of Age)." }
   ]
 
   const selectedTicket = ticketTypes.find((t) => t.id === bookingData.ticketType)
@@ -42,7 +42,7 @@ export function BookingModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
   const handleCreateBooking = async () => {
     setIsSubmitting(true)
     try {
-      const res = await fetch("https://dandiabeats.milaanservices.com/api/create-booking", {
+      const res = await fetch("/api/create-booking", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(bookingData),
@@ -50,7 +50,7 @@ export function BookingModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
       const data = await res.json()
       if (data.success) {
         setPaymentData(data)
-        setCurrentBookingId(data.bookingId) // Store bookingId for payment verification
+        setCurrentBookingId(data.bookingId) // Store bookingId for status polling
         setStep(4) // payment step
       } else {
         alert(data.error)
@@ -61,6 +61,12 @@ export function BookingModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
     }
     setIsSubmitting(false)
   }
+
+  interface CustomRazorpayOptions extends RazorpayOptions {
+  modal?: {
+    ondismiss?: () => void
+  }
+}
 
   // Open Razorpay Checkout
   const handleRazorpayPayment = async () => {
@@ -86,22 +92,70 @@ export function BookingModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
       theme: { color: "#F59E0B" },
       handler: async function (response: any) {
         try {
-          // response contains: razorpay_payment_id, razorpay_order_id, razorpay_signature
-          setStep(5)
-            //  startStatusPolling(currentBookingId);
+          // Payment completed at Razorpay's end, now wait for webhook verification
+          setStep(5) // Show processing state
+          startStatusPolling(currentBookingId);
         } catch (err) {
-          console.error("Verification error", err)
-          alert("Something went wrong while verifying payment")
-        } finally {
-          setTimeout(() => {
-            onClose()
-            resetModal()
-          }, 2000)
+          console.error("Payment completion error", err)
+          alert("Payment completed but there was an issue. Please contact support.")
         }
       },
-    })
+      
+      modal: {
+        "ondismiss": function() {
+          // Handle payment modal dismissal
+          if (step === 4) {
+            alert("Payment was not completed. Please try again.");
+          }
+        }
+      }
+    } as CustomRazorpayOptions)
     rzp.open()
   }
+
+  // Polling function to check booking status
+  const startStatusPolling = (bookingId: string) => {
+    let attempts = 0;
+    const maxAttempts = 20; // Try for 100 seconds (20 * 5s)
+    
+    const pollInterval = setInterval(async () => {
+      try {
+        attempts++;
+        const statusRes = await fetch(`/api/booking-status?bookingId=${bookingId}`);
+        
+        if (statusRes.ok) {
+          const statusData = await statusRes.json();
+          
+          if (statusData.status === 'confirmed') {
+            clearInterval(pollInterval);
+            setStep(6); // Show final success step
+            
+            // Auto-close after success
+            setTimeout(() => {
+              onClose();
+              resetModal();
+            }, 5000);
+          } else if (statusData.status === 'failed') {
+            clearInterval(pollInterval);
+            setStep(7); // Show failure step
+          }
+          // If still pending, continue polling
+        }
+        
+        // Stop polling after max attempts
+        if (attempts >= maxAttempts) {
+          clearInterval(pollInterval);
+          setStep(8); // Show timeout step
+        }
+      } catch (error) {
+        console.error('Polling error:', error);
+        if (attempts >= maxAttempts) {
+          clearInterval(pollInterval);
+          setStep(8); // Show timeout step
+        }
+      }
+    }, 5000); // Check every 5 seconds
+  };
 
   const resetModal = () => {
     setStep(1)
@@ -160,6 +214,13 @@ export function BookingModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
     });
   }
 
+  // Reset modal when closed
+  useEffect(() => {
+    if (!isOpen) {
+      resetModal();
+    }
+  }, [isOpen]);
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -177,7 +238,6 @@ export function BookingModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
             className="bg-gradient-to-br from-red-500/20 via-orange-500/20 to-yellow-500/20 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border-2 border-yellow-400/40 shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* ...steps 1,2,3 unchanged */}
             <div className="flex justify-between items-center mb-6">
               <div>
                 <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent">
@@ -196,33 +256,31 @@ export function BookingModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
             {/* Progress Bar */}
             {step <= 3 && (
               <div className="mb-8">
-                <>
-                  <div className="flex justify-between items-center mb-2">
-                    {[1, 2, 3].map((stepNum) => (
-                      <div
-                        key={stepNum}
-                        className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold ${
-                          step >= stepNum
-                            ? "bg-gradient-to-r from-yellow-400 to-orange-400 text-black"
-                            : "bg-gray-600 text-gray-300"
-                        }`}
-                      >
-                        {stepNum}
-                      </div>
-                    ))}
-                  </div>
-                  <div className="w-full bg-gray-600 rounded-full h-2">
+                <div className="flex justify-between items-center mb-2">
+                  {[1, 2, 3].map((stepNum) => (
                     <div
-                      className="bg-gradient-to-r from-yellow-400 to-orange-400 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${((step - 1) / 2) * 100}%` }}
-                    ></div>
-                  </div>
-                  <div className="flex justify-between text-xs text-gray-300 mt-1">
-                    <span>Personal Info</span>
-                    <span>Ticket Selection</span>
-                    <span>Review</span>
-                  </div>
-                </>
+                      key={stepNum}
+                      className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold ${
+                        step >= stepNum
+                          ? "bg-gradient-to-r from-yellow-400 to-orange-400 text-black"
+                          : "bg-gray-600 text-gray-300"
+                      }`}
+                    >
+                      {stepNum}
+                    </div>
+                  ))}
+                </div>
+                <div className="w-full bg-gray-600 rounded-full h-2">
+                  <div
+                    className="bg-gradient-to-r from-yellow-400 to-orange-400 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${((step - 1) / 2) * 100}%` }}
+                  ></div>
+                </div>
+                <div className="flex justify-between text-xs text-gray-300 mt-1">
+                  <span>Personal Info</span>
+                  <span>Ticket Selection</span>
+                  <span>Review</span>
+                </div>
               </div>
             )}
 
@@ -415,29 +473,78 @@ export function BookingModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
                 </motion.div>
               )}
 
-            {step === 4 && paymentData && (
-              <motion.div key="step4" className="space-y-6 text-center">
-                <h3 className="text-2xl font-bold text-yellow-300">💳 Complete Payment</h3>
-                <p className="text-white">Click the button below to pay securely with Razorpay.</p>
-                <Button
-                  onClick={handleRazorpayPayment}
-                  className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white"
-                >
-                  Pay ₹{paymentData.amount} with Razorpay
-                </Button>
-              </motion.div>
-            )}
+              {step === 4 && paymentData && (
+                <motion.div key="step4" className="space-y-6 text-center">
+                  <h3 className="text-2xl font-bold text-yellow-300">💳 Complete Payment</h3>
+                  <p className="text-white">Click the button below to pay securely with Razorpay.</p>
+                  <Button
+                    onClick={handleRazorpayPayment}
+                    className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white"
+                  >
+                    Pay ₹{paymentData.amount} with Razorpay
+                  </Button>
+                </motion.div>
+              )}
 
-            {step === 5 && (
-              <motion.div key="step5" className="text-center space-y-6">
-                <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto">
-                  <Check className="w-10 h-10 text-white" />
-                </div>
-                <h3 className="text-2xl font-bold text-green-400">🎉 Payment Successful!</h3>
-                <p className="text-white">Your booking is confirmed. Check your email for ticket details.</p>
-              </motion.div>
-            )}
+              {step === 5 && (
+                <motion.div key="step5" className="text-center space-y-6">
+                  <div className="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto">
+                    <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                  <h3 className="text-2xl font-bold text-yellow-400">⏳ Processing Payment</h3>
+                  <p className="text-white">Your payment was successful! We're verifying your booking...</p>
+                  <p className="text-gray-300 text-sm">This may take a few moments</p>
+                </motion.div>
+              )}
+
+              {step === 6 && (
+                <motion.div key="step6" className="text-center space-y-6">
+                  <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto">
+                    <Check className="w-10 h-10 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-green-400">🎉 Booking Confirmed!</h3>
+                  <p className="text-white">Your booking is now confirmed. Check your email for ticket details.</p>
+                  <div className="bg-gray-800 rounded-lg p-4 text-left">
+                    <p className="text-white font-semibold">Booking ID: {currentBookingId}</p>
+                    <p className="text-gray-300">Please save this for your records</p>
+                  </div>
+                </motion.div>
+              )}
+
+              {step === 7 && (
+                <motion.div key="step7" className="text-center space-y-6">
+                  <div className="w-20 h-20 bg-red-500 rounded-full flex items-center justify-center mx-auto">
+                    <AlertCircle className="w-10 h-10 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-red-400">❌ Booking Failed</h3>
+                  <p className="text-white">There was an issue processing your booking. Please try again or contact support.</p>
+                  <Button
+                    onClick={() => setStep(4)}
+                    className="bg-gradient-to-r from-orange-500 to-red-500 text-white"
+                  >
+                    Try Payment Again
+                  </Button>
+                </motion.div>
+              )}
+
+              {step === 8 && (
+                <motion.div key="step8" className="text-center space-y-6">
+                  <div className="w-20 h-20 bg-blue-500 rounded-full flex items-center justify-center mx-auto">
+                    <AlertCircle className="w-10 h-10 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-blue-400">⏰ Verification Taking Longer</h3>
+                  <p className="text-white">Your payment is being processed. Please check your email for confirmation.</p>
+                  <p className="text-gray-300">Booking ID: {currentBookingId}</p>
+                  <Button
+                    onClick={onClose}
+                    className="bg-gradient-to-r from-blue-500 to-blue-600 text-white"
+                  >
+                    Close
+                  </Button>
+                </motion.div>
+              )}
             </AnimatePresence>
+
             {/* Navigation Buttons */}
             {step <= 3 && (
               <div className="flex justify-between mt-8">
@@ -474,6 +581,18 @@ export function BookingModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
                     )}
                   </Button>
                 )}
+              </div>
+            )}
+
+            {/* Close button for success/failure states */}
+            {(step === 6 || step === 7 || step === 8) && (
+              <div className="flex justify-center mt-8">
+                <Button
+                  onClick={onClose}
+                  className="bg-gradient-to-r from-gray-500 to-gray-600 text-white"
+                >
+                  Close
+                </Button>
               </div>
             )}
           </motion.div>
