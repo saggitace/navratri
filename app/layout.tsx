@@ -7,6 +7,9 @@ export const metadata: Metadata = {
   title: 'Navratri - Dandiya Beats 2k25',
   description: 'Created with Milaan Services',
   generator: 'Milaan Services',
+  icons: {
+    icon: "/Dandiya-beats.jpg", // 👈 your file name here
+  },
 }
 
 export default function RootLayout({
