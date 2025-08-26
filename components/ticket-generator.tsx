@@ -41,7 +41,7 @@ export function TicketGenerator({ bookingId, onClose }: TicketGeneratorProps) {
       const data = await response.json()
 
       if (data.success) {
-        console.log("✅ Ticket generated successfully:", data.ticket)
+        // console.log("✅ Ticket generated successfully:", data.ticket)
         setTicket(data.ticket)
         setError(null)
       } else {

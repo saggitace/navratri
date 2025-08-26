@@ -26,6 +26,17 @@ import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import { BookingModal } from "@/components/booking-modal"
 
+// Optimize Cloudinary URLs
+const getOptimizedVideoUrl = (url: string) => {
+  if (!url.includes('res.cloudinary.com')) return url;
+  return url.replace('/upload/', '/upload/q_auto:eco,f_auto,vc_auto/');
+};
+
+const getOptimizedImageUrl = (url: string) => {
+  if (!url.includes('res.cloudinary.com')) return url;
+  return url.replace('/upload/', '/upload/q_auto:low,f_auto,w_300,h_200,c_fill/');
+};
+
 function ArtistVideoCarousel() {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [playingVideos, setPlayingVideos] = useState<{ [key: number]: boolean }>({})
@@ -102,6 +113,8 @@ function ArtistVideoCarousel() {
       duration: "3:36",
     },
   ]
+
+  
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % Math.ceil(artists.length / 3))
@@ -202,7 +215,7 @@ function ArtistVideoCarousel() {
                       muted={mutedVideos[artist.id]}
                       poster={artist.thumbnail}
                     >
-                      <source src={artist.videoUrl} type="video/mp4" />
+                      <source src={getOptimizedVideoUrl(artist.videoUrl)} type="video/mp4" />
                       Your browser does not support the video tag.
                     </video>
 

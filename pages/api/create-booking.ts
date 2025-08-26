@@ -19,7 +19,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const { name, email, phone, address, ticketType, quantity } = req.body
 
   const ticketTypes: Record<string, number> = {
-    Female: 1,
+    Female: 399,
     Male: 499,
     Couple: 799,
     Family: 1299,

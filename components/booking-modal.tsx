@@ -24,7 +24,7 @@ export function BookingModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
   })
 
   const ticketTypes = [
-    { id: "Female", name: "Female Entry", price: 1, description: "For individual female guests." },
+    { id: "Female", name: "Female Entry", price: 399, description: "For individual female guests." },
     { id: "Male", name: "Male Entry", price: 499, description: "For individual male guests." },
     { id: "Couple", name: "Couple Entry", price: 799, description: "For one male and one female." },
     {

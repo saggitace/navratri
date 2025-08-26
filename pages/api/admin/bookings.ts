@@ -33,9 +33,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Get total count
     const totalBookings = await bookingsCollection.countDocuments(query)
+ 
+//     interface soldCountDoc {
+//   _id: string;
+//   count: number;
+// }
 
     // Get ticket statistics
-    const soldCountDoc = await ticketsCollection.findOne({ key: "soldCount" })
+    const soldCountDoc = await ticketsCollection.findOne({ _id: "soldCount" as any })
+
     const soldCount = soldCountDoc ? soldCountDoc.count : 0
 
     // Get status counts
