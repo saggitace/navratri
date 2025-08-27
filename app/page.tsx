@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
+import dynamic from "next/dynamic";
 import {
   Calendar,
   MapPin,
@@ -24,7 +25,10 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
-import { BookingModal } from "@/components/booking-modal"
+const BookingModal = dynamic(
+  () => import("@/components/booking-modal").then((m) => m.BookingModal),
+  { ssr: false }
+);
 
 // Optimize Cloudinary URLs
 const getOptimizedVideoUrl = (url: string) => {
@@ -911,181 +915,7 @@ export default function NavratriWebsite() {
       </section>
 
       {/* Sponsorship Packages Section */}
-      <section id="sponsors" className="relative z-10 py-20 px-4">
-        <div className="max-w-6xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <div className="text-6xl mb-6">💰</div>
-            <h2 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent">
-              Sponsorship Packages
-            </h2>
-          </motion.div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {[
-              {
-                name: "Title Sponsor",
-                price: "₹2,50,000",
-                level: "Premium Package",
-                icon: Crown,
-                gradient: "from-yellow-600/30 to-orange-600/30",
-                borderColor: "border-yellow-400/40",
-                features: [
-                  { name: "Banner Branding (5 km)", included: true },
-                  { name: "Pamphlet Circulation", included: true },
-                  { name: "Stall Branding", included: true },
-                  { name: "Individual Banners", included: true },
-                  { name: "Print Media Branding", included: true },
-                  { name: "Influencer Collaborations", included: true, value: "10+" },
-                  { name: "Social Media Promotions", included: true },
-                  { name: "LED Billboard Ads", included: true },
-                  { name: "Logo on Screen/Tickets", included: true },
-                  { name: "Stall Access", included: true },
-                  { name: "Stage Branding", included: true },
-                  { name: "Media Coverage & PR", included: true },
-                  { name: "VIP Tickets", included: true, value: "20" },
-                ],
-              },
-              {
-                name: "Co-Presenting Sponsor",
-                price: "₹1,50,000",
-                level: "Gold Package",
-                icon: Star,
-                gradient: "from-orange-600/30 to-red-600/30",
-                borderColor: "border-orange-400/40",
-                features: [
-                  { name: "Banner Branding (2 km)", included: true },
-                  { name: "Pamphlet Circulation", included: true },
-                  { name: "Stall Branding", included: true },
-                  { name: "Individual Banners", included: false },
-                  { name: "Print Media Branding", included: false },
-                  { name: "Influencer Collaborations", included: true, value: "10+" },
-                  { name: "Social Media Promotions", included: true },
-                  { name: "LED Billboard Ads", included: false },
-                  { name: "Logo on Screen/Tickets", included: true },
-                  { name: "Stall Access", included: true },
-                  { name: "Stage Branding", included: true },
-                  { name: "Media Coverage & PR", included: true },
-                  { name: "VIP Tickets", included: true, value: "10" },
-                ],
-              },
-              {
-                name: "Associate Sponsor",
-                price: "₹75,000",
-                level: "Silver Package",
-                icon: Gift,
-                gradient: "from-purple-600/30 to-pink-600/30",
-                borderColor: "border-purple-400/40",
-                features: [
-                  { name: "Banner Branding", included: false },
-                  { name: "Pamphlet Circulation", included: false },
-                  { name: "Stall Branding", included: false },
-                  { name: "Individual Banners", included: true },
-                  { name: "Print Media Branding", included: true },
-                  { name: "Influencer Collaborations", included: true, value: "5+" },
-                  { name: "Social Media Promotions", included: false },
-                  { name: "LED Billboard Ads", included: true },
-                  { name: "Logo on Screen/Tickets", included: true },
-                  { name: "Stall Access", included: true },
-                  { name: "Stage Branding", included: true },
-                  { name: "Media Coverage & PR", included: false },
-                  { name: "VIP Tickets", included: true, value: "5" },
-                ],
-              },
-            ].map((pkg, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.2 }}
-                className={`bg-gradient-to-br ${pkg.gradient} rounded-2xl p-6 backdrop-blur-sm border-2 ${pkg.borderColor} hover:scale-105 transition-all duration-300 shadow-2xl`}
-              >
-                {/* Package Header */}
-                <div className="text-center mb-6">
-                  <div className="bg-yellow-400/20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                    <pkg.icon className="w-8 h-8 text-yellow-400" />
-                  </div>
-                  <h3 className="text-xl font-bold text-yellow-300 mb-2">{pkg.name}</h3>
-                  <div className="text-3xl font-bold text-white mb-2">{pkg.price}</div>
-                  <div className="text-sm text-gray-300">{pkg.level}</div>
-                </div>
-
-                {/* Features List */}
-                <div className="space-y-3 mb-6">
-                  {pkg.features.map((feature, featureIndex) => (
-                    <div key={featureIndex} className="flex items-center justify-between text-sm">
-                      <span className="text-gray-200 flex-1">{feature.name}</span>
-                      <div className="flex items-center space-x-2">
-                        {feature.value && (
-                          <span className="text-yellow-300 font-semibold text-xs">{feature.value}</span>
-                        )}
-                        {feature.included ? (
-                          <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-                            <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                            </svg>
-                          </div>
-                        ) : (
-                          <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
-                            <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={3}
-                                d="M6 18L18 6M6 6l12 12"
-                              />
-                            </svg>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* CTA Button */}
-                <Button
-                  onClick={() => scrollToSection("contact")}
-                  className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-3 px-6 rounded-full transition-all duration-300 hover:scale-105 shadow-lg"
-                >
-                  Choose Package
-                </Button>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Additional Info */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.8 }}
-            className="text-center mt-12"
-          >
-            <div className="bg-black/30 backdrop-blur-sm rounded-xl p-6 border border-yellow-400/20">
-              <h4 className="text-2xl font-bold text-yellow-300 mb-4">🤝 Partnership Benefits</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-gray-300">
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                  <span>Brand Visibility to 1000+ Attendees</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                  <span>Social Media Reach 50K+ Impressions</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                  <span>Professional Event Photography</span>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+     
 
       {/* Contact Section */}
       <section id="contact" className="relative z-10 py-20 px-4">
@@ -1119,6 +949,24 @@ export default function NavratriWebsite() {
               />
             </div>
           </motion.div>
+
+           <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="flex justify-center mb-12"
+          >
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-yellow-400/30">
+              <Image
+                src="/kishan ji events logo 3.jpg"
+                alt="Kisan ji event Logo"
+                width={200}
+                height={120}
+                className="rounded-xl"
+              />
+            </div>
+          </motion.div>
+
 
           {/* Contact Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
