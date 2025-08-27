@@ -6,8 +6,13 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  images: {
-    unoptimized: true,
+   images: {
+    unoptimized: false, // ✅ use Next.js optimizer
+    domains: [
+      "res.cloudinary.com",   // Cloudinary
+      "ik.imagekit.io",       // ImageKit
+      "hebbkx1anhila5yf.public.blob.vercel-storage.com" // Vercel Blob
+    ],
   },
 }
 

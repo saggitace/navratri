@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://dandiabeats.milaanservices.com
+
+# Sitemaps
+Sitemap: https://dandiabeats.milaanservices.com/sitemap.xml

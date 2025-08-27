@@ -65,48 +65,48 @@ function ArtistVideoCarousel() {
       name: "R Maan",
       role: "Singer",
       videoUrl: "https://res.cloudinary.com/du4zx1log/video/upload/v1756137503/System_Pe_System___R_Maan_j4dkrd.mp4",
-      thumbnail: "/artist-thumbnails/R_maan.jpg",
+      thumbnail: getOptimizedImageUrl("https://res.cloudinary.com/du4zx1log/image/upload/v1756284120/R_maan_au65p3.jpg"),
       description:
         "R. Maan is a star in Indian Pop and Haryanvi music, loved for his vibrant melodies and energetic performances",
       speciality: "Haryanvi & Electronic Beats",
       social: { instagram: "@its_rmaan", followers: "275M" },
       duration: "3:03",
     },
+    // {
+    //   id: 2,
+    //   name: "Shiva Choudhary",
+    //   role: "Singer",
+    //   videoUrl: "https://res.cloudinary.com/du4zx1log/video/upload/v1756137629/Jale_2_shiva_jcl3e3.mp4",
+    //   thumbnail: "/artist-thumbnails/shiva chaudry.jpg",
+    //   description: "Professional Singer known for her hit tracks in Haryanvi music",
+    //   speciality: "Haryanvi & Electronic Beats",
+    //   social: { instagram: "@shivachoudharyofficial", followers: "537M" },
+    //   duration: "3:07",
+    // },
     {
       id: 2,
-      name: "Shiva Choudhary",
-      role: "Singer",
-      videoUrl: "https://res.cloudinary.com/du4zx1log/video/upload/v1756137629/Jale_2_shiva_jcl3e3.mp4",
-      thumbnail: "/artist-thumbnails/shiva chaudry.jpg",
-      description: "Professional Singer known for her hit tracks in Haryanvi music",
-      speciality: "Haryanvi & Electronic Beats",
-      social: { instagram: "@shivachoudharyofficial", followers: "537M" },
-      duration: "3:07",
-    },
-    {
-      id: 3,
       name: "Jassi Karikot",
       role: "Singer",
       videoUrl: "https://res.cloudinary.com/du4zx1log/video/upload/v1756137485/THAR_jassiKarikot_iuxwbr.mp4",
-      thumbnail: "/artist-thumbnails/jassi kirakot.jpg",
+      thumbnail: getOptimizedImageUrl("https://res.cloudinary.com/du4zx1log/image/upload/v1756284504/jassi_kirakot_yog0dx.jpg"),
       description: "Singer known for his powerful voice and emotive performances",
       speciality: "Haryanvi & Electronic Beats",
       social: { instagram: "@jassikirakot", followers: "89M" },
       duration: "2:43",
     },
     {
-      id: 4,
-      name: "Sukh Deswal",
+      id: 3,
+      name: "Mannu Pahadi",
       role: "Singer",
-      videoUrl: "https://res.cloudinary.com/du4zx1log/video/upload/v1756137339/CHAI_CHURMA__Sukh_Deswal_e0gztu.mp4",
-      thumbnail: "/artist-thumbnails/sukh deswal.jpg",
+      videoUrl: "https://res.cloudinary.com/du4zx1log/video/upload/v1756324710/mannu_pahadi_video_cphkfa.mp4",
+      thumbnail: getOptimizedImageUrl("https://res.cloudinary.com/du4zx1log/image/upload/v1756324399/mannu_pahadi_vhbp5d.jpg"),
       description: "Enthusiastic Singer known for his vibrant performances",
       speciality: "Haryanvi & Electronic Beats",
-      social: { instagram: "@sukhdeswal", followers: "1.2M" },
-      duration: "3:10",
+      social: { instagram: "@mannupahadi", followers: "4.6M" },
+      duration: "3:04",
     },
     {
-      id: 5,
+      id: 4,
       name: "Deepty",
       role: "Singer",
       videoUrl: "https://res.cloudinary.com/du4zx1log/video/upload/v1756137294/DAMRU_ALA___Deepty_aq6ddt.mp4",
@@ -506,7 +506,7 @@ export default function NavratriWebsite() {
         {/* Goddess Durga Background */}
         <div className="absolute inset-0 opacity-10">
           <Image
-            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/%E2%80%94Pngtree%E2%80%94hindu%20goddess%20devi%20maa%20durga_17131809.png-5U7H61Wb2Gn6BfyCYlBVFqM1kUcfPf.jpeg"
+            src="https://ik.imagekit.io/an4xezdjsc/tr:w-800,q-auto,f-auto/—Pngtree—hindu goddess devi maa durga_17131809.png-5U7H61Wb2Gn6BfyCYlBVFqM1kUcfPf.jpeg"
             alt="Goddess Durga"
             fill
             className="object-cover object-center"
@@ -751,9 +751,9 @@ export default function NavratriWebsite() {
                 loop
                 muted
                 playsInline
-                poster="/navratri-video-poster.png"
+                poster={getOptimizedImageUrl("https://res.cloudinary.com/du4zx1log/image/upload/v1756283836/navratri-video-poster_l7kbqn.png")}
               >
-                <source src="/navratri-promotional-video.mp4" type="video/mp4" />
+                <source src={getOptimizedVideoUrl("https://res.cloudinary.com/du4zx1log/video/upload/v1756282034/navratri-promotional-video_b2m5l8.mp4")} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
 
@@ -958,7 +958,7 @@ export default function NavratriWebsite() {
           >
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-yellow-400/30">
               <Image
-                src="/kishan ji events logo 3.jpg"
+                src={getOptimizedImageUrl("https://res.cloudinary.com/du4zx1log/image/upload/v1756282575/kishan_ji_events_logo_3_ikju0b.jpg")}
                 alt="Kisan ji event Logo"
                 width={200}
                 height={120}
