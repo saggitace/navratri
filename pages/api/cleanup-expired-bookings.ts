@@ -7,7 +7,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  // Secure with CRON_SECRET
   const authHeader = req.headers.authorization;
   const expectedAuth = `Bearer ${process.env.CRON_SECRET}`;
   if (!authHeader || authHeader !== expectedAuth) {
@@ -18,18 +17,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const { db } = await connectToDatabase();
     const bookings = db.collection("bookings");
 
-    // Expire stale bookings (past expiresAt, still pending)
     const result = await bookings.updateMany(
       { status: "pending", expiresAt: { $lt: new Date() } },
       { $set: { status: "expired", expiredAt: new Date() } }
     );
 
-    res.json({
+    console.log(`Cleanup ran: ${result.modifiedCount} bookings expired`);
+
+    return res.json({
       success: true,
-      message: `Cleanup completed: ${result.modifiedCount} bookings expired`,
+      modified: result.modifiedCount,
     });
   } catch (error) {
     console.error("Cleanup error:", error);
-    res.status(500).json({ error: "Cleanup failed" });
+    return res.status(500).json({ error: "Cleanup failed" });
   }
 }

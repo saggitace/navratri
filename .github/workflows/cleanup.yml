@@ -1,0 +1,15 @@
+name: Trigger Cleanup
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"   # every 10 minutes (UTC)
+  workflow_dispatch:         # allows manual trigger from GitHub Actions UI
+
+jobs:
+  call-api:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call cleanup API
+        run: |
+          curl -X POST https://dandiabeats.milaanservices.com/api/cleanup-expired-bookings \
+          -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
