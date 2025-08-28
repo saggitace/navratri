@@ -17,7 +17,7 @@ interface Booking {
   ticketType: string
   quantity: number
   totalAmount: number
-  status: "pending" | "confirmed" | "failed" | "payment_submitted"
+  status: "pending" | "confirmed" | "failed" | "rejected" | "used"
   createdAt: string
   transactionId?: string
 }
@@ -91,19 +91,23 @@ export function AdminDashboard({ adminToken }: AdminDashboardProps) {
   }, [selectedStatus, currentPage, adminToken])
 
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case "confirmed":
-        return "text-green-400 bg-green-500/20"
-      case "pending":
-        return "text-yellow-400 bg-yellow-500/20"
-      case "failed":
-        return "text-red-400 bg-red-500/20"
-      case "payment_submitted":
-        return "text-blue-400 bg-blue-500/20"
-      default:
-        return "text-gray-400 bg-gray-500/20"
-    }
+  switch (status) {
+    case "confirmed":
+      return "text-green-400 bg-green-500/20"
+    case "pending":
+      return "text-yellow-400 bg-yellow-500/20"
+    case "failed":
+      return "text-red-400 bg-red-500/20"
+       case "rejected":
+      return "text-red-400 bg-red-300/20"
+    case "expired":
+      return "text-gray-400 bg-gray-500/20"
+    case "used":
+      return "text-purple-400 bg-purple-500/20"
+    default:
+      return "text-gray-400 bg-gray-500/20"
   }
+}
 
   const getStatusCounts = () => {
     if (!statistics?.statusCounts) return {}
@@ -197,7 +201,7 @@ export function AdminDashboard({ adminToken }: AdminDashboardProps) {
         <div className="flex flex-wrap gap-4 items-center">
           <h3 className="text-xl font-bold text-white">📋 Bookings Management</h3>
           <div className="flex space-x-2">
-            {["all", "pending", "payment_submitted", "confirmed", "failed"].map((status) => (
+            {["all", "pending", "confirmed", "failed", "expired", "rejected","used"].map((status) => (
               <button
                 key={status}
                 onClick={() => {
@@ -278,7 +282,7 @@ export function AdminDashboard({ adminToken }: AdminDashboardProps) {
                       {booking.transactionId && <p className="text-blue-300 text-xs">ID: {booking.transactionId}</p>}
                     </td>
                     <td className="p-4">
-                      {booking.status === "payment_submitted" && (
+                      {booking.status === "pending" && (
                         <div className="flex space-x-2">
                           <Button
                             onClick={() => verifyBooking(booking._id, "confirm")}

@@ -111,60 +111,60 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           throw new Error("Booking not found or already confirmed/cancelled")
         }
 
-        // Check ticket availability
-        const soldCountDoc = await ticketsCollection.findOne({ _id: "soldCount" }, { session })
-        const soldCount = soldCountDoc?.count || 0
-        const ticketQty = booking.quantity || 1
-        
-        if (soldCount + ticketQty > TOTAL_TICKETS) {
-          // Mark booking as failed and cancel payment
+         if (booking.expiresAt < new Date()) {
           await bookings.updateOne(
             { _id: new ObjectId(bookingId) },
-            { $set: { status: "failed", failedAt: new Date(), failReason: "Sold out" } },
+            { $set: { status: "expired", expiredAt: new Date() } },
             { session }
-          );
-          
-          await cancelPayment(paymentId);
-          throw new Error(`Not enough tickets available. Only ${TOTAL_TICKETS - soldCount} left.`)
+          )
+          throw new Error("Booking expired before payment confirmation")
         }
 
-        // Confirm the booking
-        await bookings.updateOne(
-          { _id: new ObjectId(bookingId) },
-          {
-            $set: {
-              status: "confirmed",
-              paymentId: paymentId,
-              verifiedAt: new Date(),
-            },
-          },
-          { session }
+        // ✅ Increment sold tickets here
+        const soldCountDoc = await ticketsCollection.findOneAndUpdate(
+          { _id: "soldCount" },
+          { $inc: { count: booking.quantity }, $setOnInsert: { _id: "soldCount"} },
+          { upsert: true, returnDocument: "after", session }
         )
 
-        // Increment sold count by the quantity booked
-        await ticketsCollection.updateOne(
-          { _id: "soldCount" },
-          { $inc: { count: ticketQty } },
-          { upsert: true, session }
-        )
-      })
+        const newSoldCount = soldCountDoc?.count || 0;
+
+  // 2. Check if we've exceeded capacity
+  if (newSoldCount > TOTAL_TICKETS) {
+    throw new Error(`Sorry, all ${TOTAL_TICKETS} tickets have been sold out!`);
+  }
+
+          await bookings.updateOne(
+        { _id: new ObjectId(bookingId) },
+        {
+          $set: {
+            status: "confirmed",
+            paymentId: paymentId,
+            verifiedAt: new Date(),
+          },
+        },
+        { session }
+      );
+
+            });
       
       res.json({ status: "ok" })
     } catch (err) {
       // If any error occurs during processing, cancel the payment
-      await cancelPayment(paymentId);
+       console.error("Error processing payment.captured:", err)
+      res.status(500).json({ error: (err as Error).message })
       
-      // Also update booking status to failed
-      await bookings.updateOne(
-        { _id: new ObjectId(bookingId) },
-        { 
-          $set: { 
-            status: "failed", 
-            failedAt: new Date(), 
-            failReason: (err as Error).message 
-          } 
-        }
-      );
+      // // Also update booking status to failed
+      // await bookings.updateOne(
+      //   { _id: new ObjectId(bookingId) },
+      //   { 
+      //     $set: { 
+      //       status: "failed", 
+      //       failedAt: new Date(), 
+      //       failReason: (err as Error).message 
+      //     } 
+      //   }
+      // );
       
       res.status(500).json({ error: (err as Error).message })
     } finally {
@@ -173,6 +173,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return
   }
 
-  // For other events, just return ok
+ 
+// Add payment.failed handler to release reservations
+  if (event.event === "payment.failed") {
+    const bookingId = event.payload.payment.entity.notes?.bookingId
+    if (bookingId && ObjectId.isValid(bookingId)) {
+      await bookings.updateOne(
+        { _id: new ObjectId(bookingId), status: "pending" },
+        { $set: { status: "failed", failedAt: new Date() } }
+      )
+    }
+    res.json({ status: "ok" })
+    return
+  }
+
   res.json({ status: "ignored" })
 }

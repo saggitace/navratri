@@ -78,6 +78,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       generatedAt: new Date().toISOString(),
     }
 
+     
+           await bookingsCollection.updateOne(
+  { _id: new ObjectId(bookingId) },
+  { $set: { ticketGenerated: true, ticketGeneratedAt: new Date().toISOString() } }
+)
+
     return res.status(200).json({
       success: true,
       ticket: ticketInfo,

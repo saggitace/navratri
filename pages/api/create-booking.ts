@@ -2,7 +2,8 @@ import type { NextApiRequest, NextApiResponse } from "next"
 import { connectToDatabase } from "../../lib/db"
 import Razorpay from "razorpay"
 
-const TOTAL_TICKETS = 2000
+const TOTAL_TICKETS = parseInt(process.env.TOTAL_TICKETS || "2000");
+
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID!,
@@ -41,14 +42,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let bookingId: string = ""
 
     await session.withTransaction(async () => {
-      // Check availability (optional, for user feedback)
-      const soldCountDoc = await ticketsCollection.findOne({ _id: "soldCount" }, { session })
-      const soldCount = soldCountDoc?.count || 0
-      if (soldCount + ticketQty > TOTAL_TICKETS) {
-        throw new Error(`Only ${TOTAL_TICKETS - soldCount} tickets remaining`)
-      }
-
-      // DO NOT increment sold count here!
+     
+   
 
       // Insert booking
       const bookingData = {
@@ -62,6 +57,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         status: "pending",
         paymentMethod: "razorpay",
         createdAt: new Date(),
+         expiresAt: new Date(Date.now() + 15 * 60 * 1000), // 15 minute reservation
       }
 
       const result = await bookingsCollection.insertOne(bookingData, { session })

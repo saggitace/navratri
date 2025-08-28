@@ -1,5 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next"
 import { connectToDatabase } from "../../../lib/db"
+import jwt from "jsonwebtoken"
+
+const JWT_SECRET = process.env.JWT_SECRET! // store securely in .env
 
 // Admin endpoint to get all bookings
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -7,9 +10,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ error: "Method not allowed" })
   }
 
-  // In production, add proper admin authentication here
+  // 🔒 Verify JWT
+  const authHeader = req.headers.authorization
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Authorization token missing" })
+  }
+
+  const token = authHeader.split(" ")[1]
 
   try {
+    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; role: string }
+
+    // Check admin role
+    if (!decoded || decoded.role !== "admin") {
+      return res.status(403).json({ error: "Forbidden: Admin access only" })
+    }
+
+    // ✅ Authenticated as admin → fetch bookings
     const { db } = await connectToDatabase()
     const bookingsCollection = db.collection("bookings")
     const ticketsCollection = db.collection("tickets")
@@ -22,7 +39,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       query.status = status
     }
 
-    // Get bookings with pagination
+    // Pagination
     const skip = (Number.parseInt(page as string) - 1) * Number.parseInt(limit as string)
     const bookings = await bookingsCollection
       .find(query)
@@ -31,20 +48,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .limit(Number.parseInt(limit as string))
       .toArray()
 
-    // Get total count
+    // Total count
     const totalBookings = await bookingsCollection.countDocuments(query)
- 
-//     interface soldCountDoc {
-//   _id: string;
-//   count: number;
-// }
 
-    // Get ticket statistics
+    // Ticket stats
     const soldCountDoc = await ticketsCollection.findOne({ _id: "soldCount" as any })
-
     const soldCount = soldCountDoc ? soldCountDoc.count : 0
 
-    // Get status counts
+    // Status counts
     const statusCounts = await bookingsCollection
       .aggregate([
         {
@@ -75,9 +86,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     })
   } catch (error: any) {
     console.error("Admin bookings fetch error:", error)
-    return res.status(500).json({
+    return res.status(401).json({
       success: false,
-      error: error.message || "Failed to fetch bookings",
+      error: error.message || "Invalid or expired token",
     })
   }
 }
