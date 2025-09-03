@@ -2,10 +2,34 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { X, User, Mail, Phone, MapPin, Calendar, Users, Check, AlertCircle, Download } from "lucide-react"
+import { X, User, Mail, Phone, MapPin, Calendar, Users, Check, AlertCircle, Download, Tag } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { TicketGenerator } from "./ticket-generator"
-// import type { RazorpayOptions } from "razorpay/types/api"
+
+interface RazorpayOptions {
+  key: string;
+  amount: number;
+  currency: string;
+  name: string;
+  description: string;
+  order_id: string;
+  prefill: {
+    name: string;
+    email: string;
+    contact: string;
+  };
+  theme: { color: string };
+  handler: (response: any) => void;
+  modal?: {
+    ondismiss?: () => void;
+  };
+}
+
+// declare global {
+//   interface Window {
+//     Razorpay: new (options: RazorpayOptions) => any;
+//   }
+// }
 
 export function BookingModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [step, setStep] = useState(1)
@@ -13,14 +37,27 @@ export function BookingModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
   const [paymentData, setPaymentData] = useState<any>(null)
   const [currentBookingId, setCurrentBookingId] = useState<string | null>(null)
   const [showTicketGenerator, setShowTicketGenerator] = useState(false)
+  
+  // Promo state
+  const [promoCode, setPromoCode] = useState("")
+  const [promoPreview, setPromoPreview] = useState<{
+    valid: boolean
+    discountPercent: number
+    discountAmount: number
+    finalAmount: number
+    code: string
+  } | null>(null)
+  const [applyingPromo, setApplyingPromo] = useState(false)
+
   const [bookingData, setBookingData] = useState({
     name: "",
     email: "",
     phone: "",
     address: "",
-    ticketType: "",
+    ticketType: "Female",
     quantity: 1,
     totalAmount: 0,
+    promoCode: "", // Added promoCode field to booking data
   })
 
   const ticketTypes = [
@@ -41,9 +78,59 @@ export function BookingModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
     const updated = { ...bookingData, [field]: value }
     if (field === "ticketType" || field === "quantity") {
       const ticket = ticketTypes.find((t) => t.id === updated.ticketType)
-      updated.totalAmount = ticket ? ticket.price * updated.quantity : 0
+      updated.totalAmount = ticket ? ticket.price * Number(updated.quantity) : 0
+      // Clear promo preview when total changes (user must re-apply)
+      setPromoPreview(null)
     }
     setBookingData(updated)
+  }
+
+  // Apply promo code with server validation
+  const applyPromo = async () => {
+    if (!promoCode.trim()) {
+      setPromoPreview(null)
+      return
+    }
+    setApplyingPromo(true)
+    try {
+      const res = await fetch("/api/validate-promo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          promoCode: promoCode.trim(),
+          totalAmount: bookingData.totalAmount,
+        }),
+      })
+      const data = await res.json()
+      if (data.valid) {
+        setPromoPreview({
+          valid: true,
+          discountPercent: data.discountPercent,
+          discountAmount: data.discountAmount,
+          finalAmount: data.finalAmount,
+          code: data.code,
+        })
+        // Update booking data with promo code
+        setBookingData(prev => ({ ...prev, promoCode: promoCode.trim() }))
+      } else {
+        setPromoPreview({
+          valid: false,
+          discountPercent: 0,
+          discountAmount: 0,
+          finalAmount: bookingData.totalAmount,
+          code: promoCode.trim().toUpperCase(),
+        })
+        // Clear promo code from booking data if invalid
+        setBookingData(prev => ({ ...prev, promoCode: "" }))
+      }
+    } catch (e) {
+      console.error(e)
+      setPromoPreview(null)
+      setBookingData(prev => ({ ...prev, promoCode: "" }))
+      alert("Failed to apply promo. Please try again.")
+    } finally {
+      setApplyingPromo(false)
+    }
   }
 
   // Step 3 -> create booking + Razorpay order
@@ -70,12 +157,6 @@ export function BookingModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
     setIsSubmitting(false)
   }
 
-  interface CustomRazorpayOptions extends RazorpayOptions {
-    modal?: {
-      ondismiss?: () => void
-    }
-  }
-
   // Open Razorpay Checkout
   const handleRazorpayPayment = async () => {
     if (!paymentData || !currentBookingId) return
@@ -84,7 +165,7 @@ export function BookingModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
       alert("Failed to load Razorpay SDK. Please try again.")
       return
     }
-    // @ts-ignore
+    
     const rzp = new window.Razorpay({
       key: paymentData.key,
       amount: paymentData.amount * 100,
@@ -108,7 +189,6 @@ export function BookingModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
           alert("Payment completed but there was an issue. Please contact support.")
         }
       },
-
       modal: {
         ondismiss: () => {
           // Handle payment modal dismissal
@@ -117,7 +197,8 @@ export function BookingModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
           }
         },
       },
-    } as CustomRazorpayOptions)
+    } as RazorpayOptions)
+    
     rzp.open()
   }
 
@@ -137,12 +218,6 @@ export function BookingModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
           if (statusData.booking?.status === "confirmed") {
             clearInterval(pollInterval)
             setStep(6) // Show final success step
-
-            // Don't auto-close anymore, let user generate ticket first
-            // setTimeout(() => {
-            //   onClose();
-            //   resetModal();
-            // }, 5000);
           } else if (statusData.booking?.status === "failed") {
             clearInterval(pollInterval)
             setStep(7) // Show failure step
@@ -170,6 +245,8 @@ export function BookingModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
     setPaymentData(null)
     setCurrentBookingId(null)
     setShowTicketGenerator(false)
+    setPromoCode("")
+    setPromoPreview(null)
     setBookingData({
       name: "",
       email: "",
@@ -178,13 +255,8 @@ export function BookingModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
       ticketType: "Female",
       quantity: 1,
       totalAmount: 0,
+      promoCode: "",
     })
-  }
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
   }
 
   const nextStep = () => {
@@ -430,6 +502,58 @@ export function BookingModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
                       </div>
                     </div>
                   )}
+                    
+                  {/* Promo code area */}
+                  <div className="bg-black/40 rounded-xl p-4 border border-yellow-400/30">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Tag className="w-4 h-4 text-yellow-400" />
+                      <span className="text-white font-semibold">Promo Code</span>
+                      <span className="text-gray-400 text-xs">(Optional)</span>
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <input
+                        value={promoCode}
+                        onChange={(e) => setPromoCode(e.target.value)}
+                        placeholder="Enter promo code "
+                        className="flex-1 bg-black/40 border border-yellow-400/30 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-yellow-400 focus:outline-none"
+                      />
+                      <Button
+                        onClick={applyPromo}
+                        disabled={applyingPromo || !bookingData.totalAmount}
+                        className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+                      >
+                        {applyingPromo ? "Applying..." : "Apply"}
+                      </Button>
+                    </div>
+
+                    {promoPreview && (
+                      <div
+                        className={`mt-3 rounded-lg p-3 border ${
+                          promoPreview.valid ? "bg-green-500/10 border-green-400/30" : "bg-red-500/10 border-red-400/30"
+                        }`}
+                      >
+                        {promoPreview.valid ? (
+                          <div className="text-green-300 text-sm">
+                            ✅ Code {promoPreview.code} applied: {promoPreview.discountPercent}% off
+                            <div className="flex justify-between text-white mt-2">
+                              <span>Discount</span>
+                              <span className="font-semibold">- ₹{promoPreview.discountAmount}</span>
+                            </div>
+                            <div className="flex justify-between text-yellow-300 mt-1">
+                              <span className="font-bold">Final Amount</span>
+                              <span className="font-bold">₹{promoPreview.finalAmount}</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-red-300 text-sm">❌ Invalid code: {promoPreview.code}</div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* <p className="text-gray-400 text-xs mt-2">
+                      Note: Discount is validated and applied on the server during booking.
+                    </p> */}
+                  </div>
                 </motion.div>
               )}
 
@@ -443,7 +567,7 @@ export function BookingModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
                 >
                   <h3 className="text-xl font-bold text-white mb-4">📋 Booking Summary</h3>
 
-                  <div className="bg-black/40 rounded-xl p-6 border border-yellow-400/30 space-y-4">
+                  <div className="bg-black/40 rounded-xl p-6 border border-yellow-400/30 space-y-3">
                     <div className="flex justify-between">
                       <span className="text-gray-300">Name:</span>
                       <span className="text-white font-semibold">{bookingData.name}</span>
@@ -464,11 +588,33 @@ export function BookingModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
                       <span className="text-gray-300">Quantity:</span>
                       <span className="text-white">{bookingData.quantity}</span>
                     </div>
+
                     <hr className="border-gray-600" />
-                    <div className="flex justify-between text-xl">
-                      <span className="text-yellow-300 font-bold">Total Amount:</span>
-                      <span className="text-yellow-300 font-bold">₹{bookingData.totalAmount}</span>
+
+                    <div className="flex justify-between">
+                      <span className="text-gray-300">Base Amount:</span>
+                      <span className="text-white font-semibold">₹{bookingData.totalAmount}</span>
                     </div>
+
+                    {promoPreview?.valid && (
+                      <>
+                        <div className="flex justify-between">
+                          <span className="text-green-300">Promo ({promoPreview.code})</span>
+                          <span className="text-green-300 font-semibold">- ₹{promoPreview.discountAmount}</span>
+                        </div>
+                        <div className="flex justify-between text-xl">
+                          <span className="text-yellow-300 font-bold">Final Amount:</span>
+                          <span className="text-yellow-300 font-bold">₹{promoPreview.finalAmount}</span>
+                        </div>
+                      </>
+                    )}
+
+                    {!promoPreview?.valid && (
+                      <div className="flex justify-between text-xl">
+                        <span className="text-yellow-300 font-bold">Total Amount:</span>
+                        <span className="text-yellow-300 font-bold">₹{bookingData.totalAmount}</span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="bg-blue-500/20 rounded-xl p-4 border border-blue-400/30">
@@ -518,7 +664,7 @@ export function BookingModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
                     <p className="text-gray-300">Please save this for your records</p>
                   </div>
 
-                  {/* NEW: Ticket Generation Section */}
+                  {/* Ticket Generation Section */}
                   <div className="space-y-4">
                     <Button
                       onClick={() => setShowTicketGenerator(true)}

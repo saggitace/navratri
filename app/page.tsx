@@ -478,6 +478,54 @@ function CountdownTimer() {
     )
 }
 
+
+// Sticky CTA Button for Booking Tickets
+function StickyCTA({ onBookNow }: { onBookNow: () => void }) {
+  const [isVisible, setIsVisible] = useState(false)
+
+  useEffect(() => {
+    const toggleVisibility = () => {
+      setIsVisible(window.pageYOffset > 300)
+    }
+    
+    window.addEventListener("scroll", toggleVisibility)
+    return () => window.removeEventListener("scroll", toggleVisibility)
+  }, [])
+
+  if (!isVisible) return null
+
+  return (
+    <motion.div
+      initial={{ y: 100 }}
+      animate={{ y: 0 }}
+      className="fixed bottom-0 left-0 right-0 z-40 bg-gradient-to-r from-orange-500 to-red-500 text-white p-4 shadow-2xl"
+    >
+      <div className="flex items-center justify-between max-w-4xl mx-auto">
+        <div className="flex items-center space-x-4">
+          <div className="hidden sm:block">
+            <div className="text-xl font-bold">🎉 Don't Miss Out!</div>
+            <div className="text-sm opacity-90">Limited tickets available at special price</div>
+          </div>
+          <div className="flex items-center space-x-2">
+            <span className="text-2xl">🎫</span>
+            <div>
+              <div className="font-bold text-sm">Early Bird: ₹399</div>
+              <div className="text-xs opacity-90">Ends soon!</div>
+            </div>
+          </div>
+        </div>
+        
+        <Button 
+          onClick={onBookNow}
+          className="bg-white text-orange-600 hover:bg-gray-100 font-bold px-6 py-3 rounded-full text-sm sm:text-base"
+        >
+          🎟️ Book Now
+        </Button>
+      </div>
+    </motion.div>
+  )
+}
+
 export default function NavratriWebsite() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
    const [isBookingModalOpen, setIsBookingModalOpen] = useState(false)
@@ -1051,6 +1099,9 @@ export default function NavratriWebsite() {
           <p className="text-gray-300">© 2025 Milaan Services. All rights reserved.</p>
         </div>
       </footer>
+
+      {/* Add the StickyCTA component */}
+      <StickyCTA onBookNow={openBookingModal} />
 
       {/* Booking Modal */}
       <BookingModal isOpen={isBookingModalOpen} onClose={closeBookingModal} />
