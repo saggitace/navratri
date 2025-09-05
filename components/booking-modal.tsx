@@ -54,7 +54,7 @@ export function BookingModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
     email: "",
     phone: "",
     address: "",
-    ticketType: "Female",
+    ticketType: "",
     quantity: 1,
     totalAmount: 0,
     promoCode: "", // Added promoCode field to booking data
@@ -252,7 +252,7 @@ export function BookingModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
       email: "",
       phone: "",
       address: "",
-      ticketType: "Female",
+      ticketType: "",
       quantity: 1,
       totalAmount: 0,
       promoCode: "",

@@ -110,7 +110,7 @@ function ArtistVideoCarousel() {
       name: "Deepty",
       role: "Singer",
       videoUrl: "https://res.cloudinary.com/du4zx1log/video/upload/v1756137294/DAMRU_ALA___Deepty_aq6ddt.mp4",
-      thumbnail: "/artist-thumbnails/deepty.jpg",
+      thumbnail: getOptimizedImageUrl("https://res.cloudinary.com/du4zx1log/image/upload/v1757068418/deepty_uvdwm9.jpg"),
       description: "Talented Singer and Music Producer known for his unique sound",
       speciality: "Haryanvi & Electronic Beats",
       social: { instagram: "@amitmusician", followers: "161M" },

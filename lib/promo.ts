@@ -1,4 +1,4 @@
-export const ACTIVE_PROMO_CODE = "NAVRATRI5"
+export const ACTIVE_PROMO_CODE = "AYUSH018"
 
 // Normalize and validate promo code
 export function validatePromoCode(code?: string) {
@@ -9,7 +9,7 @@ export function validatePromoCode(code?: string) {
 
   // Single active code with 5% discount
   if (normalized === ACTIVE_PROMO_CODE) {
-    return { valid: true as const, code: normalized, discountPercent: 5 }
+    return { valid: true as const, code: normalized, discountPercent: 4 }
   }
 
   return { valid: false as const, code: normalized, discountPercent: 0 }
