@@ -1,4 +1,9 @@
-export const ACTIVE_PROMO_CODE = "AYUSH018"
+// Define all promo codes with discounts
+export const PROMO_CODES: Record<string, number> = {
+  AYUSH018: 4,  // 5% discount
+  NAVRATRI05: 5, // 10% discount
+  BITP10: 0, // 50% discount
+}
 
 // Normalize and validate promo code
 export function validatePromoCode(code?: string) {
@@ -7,9 +12,9 @@ export function validatePromoCode(code?: string) {
     return { valid: false as const, code: "", discountPercent: 0 }
   }
 
-  // Single active code with 5% discount
-  if (normalized === ACTIVE_PROMO_CODE) {
-    return { valid: true as const, code: normalized, discountPercent: 4 }
+  const discountPercent = PROMO_CODES[normalized]
+  if (discountPercent) {
+    return { valid: true as const, code: normalized, discountPercent }
   }
 
   return { valid: false as const, code: normalized, discountPercent: 0 }
@@ -18,6 +23,7 @@ export function validatePromoCode(code?: string) {
 // Calculate discount server-side and return final amount
 export function applyPromo(totalAmount: number, code?: string) {
   const { valid, discountPercent, code: normalized } = validatePromoCode(code)
+
   if (!valid) {
     return {
       applied: false as const,
