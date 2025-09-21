@@ -4,6 +4,7 @@ export const PROMO_CODES: Record<string, number> = {
   NAVRATRI05: 5, // 10% discount
   VBH05: 10, // 10% discount
   NEWYAMINIGIRL:10,
+  MAA25: 15,
 }
 
 // Normalize and validate promo code
